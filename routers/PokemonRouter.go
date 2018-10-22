@@ -19,3 +19,9 @@ func GetFilterPokemon(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, pokemonList)
 }
+
+func CreatePokemon(c echo.Context) error {
+	repositories.CreatePokemon()
+
+	return c.JSON(http.StatusCreated, nil)
+}

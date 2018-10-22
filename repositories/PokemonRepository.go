@@ -54,8 +54,6 @@ func AllPokemon() []entities.Pokemon {
 		AllPokemon = append(AllPokemon, *Pokemon)
 	}
 
-	db.Close()
-
 	return AllPokemon
 }
 
@@ -73,7 +71,12 @@ func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
 		FilteredPokemon = append(FilteredPokemon, *Pokemon)
 	}
 
-	db.Close()
-
 	return FilteredPokemon, nil
+}
+
+func CreatePokemon(pokemon entities.Pokemon) (*entities.Pokemon){
+	// TODO
+	//db.Query("CALL junidex.")
+
+	return nil;
 }

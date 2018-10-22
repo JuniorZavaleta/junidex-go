@@ -11,8 +11,9 @@ func main() {
 
 	repositories.InitDatabase()
 
-	e.GET("/pokemon/get", routers.GetFetchPokemon)
+	e.GET("/pokemon", routers.GetFetchPokemon)
 	e.GET("/pokemon/filter", routers.GetFilterPokemon)
+	e.POST("/pokemon", routers.CreatePokemon)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
