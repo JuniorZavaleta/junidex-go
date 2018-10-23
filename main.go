@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./repositories"
+	"./repo"
 	"./routers"
 	"github.com/labstack/echo"
 )
@@ -9,7 +9,7 @@ import (
 func main() {
 	e := echo.New()
 
-	repositories.InitDatabase()
+	repo.InitDatabase()
 
 	e.GET("/pokemon", routers.GetFetchPokemon)
 	e.GET("/pokemon/filter", routers.GetFilterPokemon)

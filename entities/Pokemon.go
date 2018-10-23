@@ -6,10 +6,11 @@ type PokemonType struct {
 }
 
 type Pokemon struct {
-	Id        int
-	Name      string
-	TypeOneId int
-	TypeTwoId int
-	TypeOne   PokemonType
-	TypeTwo   PokemonType
+	Id        	int
+	Name      	string
+	TypeOneId 	int
+	TypeTwoId 	IntNull
+	TypeOne   	PokemonType
+	TypeTwo   	PokemonType
+	HasPreEvol 	bool
 }

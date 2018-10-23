@@ -1,3 +1,34 @@
+USE junidex;
+
+create procedure get_all_pokemon()
+  BEGIN
+    SELECT p.id, p.name, p.type_one_id, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
+    FROM pokemon as p
+           JOIN pokemon_type as t1 ON p.type_one_id = t1.id
+           LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id;
+  END;
+
+CREATE PROCEDURE filter_pokemon(TypeOne varchar(30), TypeTwo varchar(30))
+  BEGIN
+    SELECT p.id, p.name, p.type_one_id, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
+    FROM pokemon as p
+           JOIN pokemon_type as t1 ON p.type_one_id = t1.id
+           LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id
+    WHERE
+        CASE
+          WHEN TypeOne IS NULL OR TypeOne = '' THEN 1
+          WHEN t1.name like concat('%',TypeOne,'%') THEN 1
+          ELSE 0 END = 1
+
+      AND
+
+        CASE
+          WHEN TypeTwo IS NULL OR TypeTwo = '' THEN 1
+          WHEN t2.name like concat('%',TypeTwo,'%') THEN 1
+          ELSE 0 END = 1
+    ;
+  END;
+
 CREATE PROCEDURE get_complete_chain_evolution(PokemonId tinyint unsigned)
   BEGIN
     #   IF
@@ -43,4 +74,30 @@ CREATE PROCEDURE get_complete_chain_evolution(PokemonId tinyint unsigned)
            JOIN pokemon e ON evolution_id = e.id
            JOIN evolution_type t ON type_id = t.id
     WHERE JSON_CONTAINS(Ids, JSON_ARRAY(current_id), '$');
+  END;
+
+CREATE PROCEDURE create_pokemon(IN PokemonData json)
+  BEGIN
+    DECLARE PokemonId SMALLINT UNSIGNED DEFAULT 0;
+    DECLARE TypeTwo TINYINT UNSIGNED DEFAULT NULL;
+
+    SELECT
+           CASE WHEN JSON_EXTRACT(PokemonData, '$.TypeTwoId.Null') = FALSE
+                     THEN JSON_EXTRACT(PokemonData, '$.TypeTwoId.Value')
+                ELSE NULL
+               END INTO TypeTwo;
+
+
+    INSERT INTO pokemon (name, type_one_id, type_two_id, has_preevolution)
+    values (JSON_UNQUOTE(JSON_EXTRACT(PokemonData, '$.Name')),
+            JSON_EXTRACT(PokemonData, '$.TypeOneId'),
+            TypeTwo,
+            JSON_EXTRACT(PokemonData, '$.HasPreEvol'));
+    SELECT LAST_INSERT_ID() INTO PokemonId;
+
+    SELECT p.*, t1.name as type_one, t2.name as type_two
+    FROM pokemon as p
+           JOIN pokemon_type as t1 ON p.type_one_id = t1.id
+           LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id
+    WHERE p.id = PokemonId;
   END;

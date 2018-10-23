@@ -1,8 +1,10 @@
-package repositories
+package repo
 
 import (
 	"../entities"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -15,12 +17,14 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 	var PokemonTypeTwoId sql.NullInt64
 	var PokemonTypeOne string
 	var PokemonTypeTwo sql.NullString
+	var PokemonHasPreEvol bool
 
 	err := rows.Scan(
 		&PokemonId,
 		&PokemonName,
 		&PokemonTypeOneId,
 		&PokemonTypeTwoId,
+		&PokemonHasPreEvol,
 		&PokemonTypeOne,
 		&PokemonTypeTwo,
 	)
@@ -31,10 +35,11 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 		Pokemon.TypeOneId = PokemonTypeOneId
 		Pokemon.TypeOne.Id = int(Pokemon.TypeOneId)
 		Pokemon.TypeOne.Name = PokemonTypeOne
+		Pokemon.HasPreEvol = PokemonHasPreEvol
 
 		if PokemonTypeTwoId.Valid {
-			Pokemon.TypeTwoId = int(PokemonTypeTwoId.Int64)
-			Pokemon.TypeTwo.Id = Pokemon.TypeTwoId
+			Pokemon.TypeTwoId = entities.IntNull{int(PokemonTypeTwoId.Int64), false}
+			Pokemon.TypeTwo.Id = Pokemon.TypeTwoId.Value
 			Pokemon.TypeTwo.Name = PokemonTypeTwo.String
 		}
 	} else {
@@ -74,9 +79,25 @@ func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
 	return FilteredPokemon, nil
 }
 
-func CreatePokemon(pokemon entities.Pokemon) (*entities.Pokemon){
-	// TODO
-	//db.Query("CALL junidex.")
+func CreatePokemon(pokemon entities.Pokemon) (entities.Pokemon, error) {
+	pokemonJson, err := json.Marshal(pokemon)
+	fmt.Println(string(pokemonJson))
 
-	return nil;
+	if err != nil {
+		panic(err)
+	}
+
+	rows, err := db.Query("CALL junidex.create_pokemon(?)", pokemonJson)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if rows.Next() {
+		pokemon, _ := CreatePokemonFromRow(rows)
+
+		return *pokemon, nil
+	} else {
+		return entities.Pokemon{}, rows.Err()
+	}
 }
