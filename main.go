@@ -14,6 +14,7 @@ func main() {
 	e.GET("/pokemon", routers.GetFetchPokemon)
 	e.GET("/pokemon/filter", routers.GetFilterPokemon)
 	e.POST("/pokemon", routers.CreatePokemon)
+	e.GET("/chain_evolution", routers.GetChainEvolution)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

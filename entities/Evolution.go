@@ -8,8 +8,9 @@ type EvolutionType struct {
 type ChainEvolution struct {
 	Id int
 	CurrentId int
-	Current Pokemon
+	Current *Pokemon
 	EvolutionId int
-	Evolution Pokemon
-	Type EvolutionType
+	Evolution *Pokemon
+	Type *EvolutionType
+	Details map[string]string
 }

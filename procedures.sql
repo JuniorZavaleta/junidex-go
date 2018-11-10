@@ -2,7 +2,7 @@ USE junidex;
 
 create procedure get_all_pokemon()
   BEGIN
-    SELECT p.id, p.name, p.type_one_id, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
+    SELECT p.id, p.name, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
     FROM pokemon as p
            JOIN pokemon_type as t1 ON p.type_one_id = t1.id
            LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id;
@@ -10,7 +10,7 @@ create procedure get_all_pokemon()
 
 CREATE PROCEDURE filter_pokemon(TypeOne varchar(30), TypeTwo varchar(30))
   BEGIN
-    SELECT p.id, p.name, p.type_one_id, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
+    SELECT p.id, p.name, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
     FROM pokemon as p
            JOIN pokemon_type as t1 ON p.type_one_id = t1.id
            LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id
@@ -95,9 +95,18 @@ CREATE PROCEDURE create_pokemon(IN PokemonData json)
             JSON_EXTRACT(PokemonData, '$.HasPreEvol'));
     SELECT LAST_INSERT_ID() INTO PokemonId;
 
-    SELECT p.*, t1.name as type_one, t2.name as type_two
+    SELECT p.id, p.name, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
     FROM pokemon as p
            JOIN pokemon_type as t1 ON p.type_one_id = t1.id
            LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id
     WHERE p.id = PokemonId;
+  END;
+
+CREATE PROCEDURE find_pokemon(Id int)
+  BEGIN
+    SELECT p.id, p.name, p.type_one_id, p.type_two_id, p.has_preevolution, t1.name as type_one, t2.name as type_two
+    FROM pokemon as p
+           JOIN pokemon_type as t1 ON p.type_one_id = t1.id
+           LEFT JOIN pokemon_type as t2 ON p.type_two_id = t2.id
+    WHERE p.id = Id;
   END;

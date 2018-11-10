@@ -67,8 +67,7 @@ func AllPokemon() []entities.Pokemon {
 }
 
 func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
-	rows, _ := db.Query(
-		"CALL junidex.filter_Pokemon(?, ?)",
+	rows, _ := db.Query("CALL junidex.filter_Pokemon(?, ?)",
 		TypeOne,
 		TypeTwo,
 	)
@@ -81,6 +80,24 @@ func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
 	}
 
 	return FilteredPokemon, nil
+}
+
+func FindPokemon(Id int) (*entities.Pokemon, error) {
+	rows, err := db.Query("CALL junidex.find_pokemon(?)", Id)
+
+	if err != nil {
+		panic(err)
+	} else {
+		var Pokemon *entities.Pokemon
+
+		if rows.Next() {
+			Pokemon, _ = CreatePokemonFromRow(rows)
+
+			return Pokemon, nil
+		}
+	}
+
+	return &entities.Pokemon{}, rows.Err()
 }
 
 func CreatePokemon(pokemon entities.Pokemon) (entities.Pokemon, error) {
