@@ -9,7 +9,8 @@ CREATE TABLE pokemon
   id smallint unsigned PRIMARY KEY AUTO_INCREMENT,
   name varchar(30) NOT NULL,
   type_one_id tinyint unsigned NOT NULL,
-  type_two_id tinyint unsigned
+  type_two_id tinyint unsigned,
+  has_preevolution tinyint(1) DEFAULT (FALSE)
 );
 
 CREATE TABLE pokemon_type
@@ -23,8 +24,6 @@ CREATE TABLE evolution_type
   id tinyint unsigned PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(12) NOT NULL
 );
-
-DROP TABLE chain_evolution;
 
 CREATE TABLE chain_evolution
 (

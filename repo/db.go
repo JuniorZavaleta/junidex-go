@@ -2,10 +2,13 @@ package repo
 
 import (
 	"database/sql"
+	"github.com/go-redis/redis"
 	"os"
 )
 
 var db *sql.DB
+
+var client *redis.Client
 
 func InitDatabase() {
 	var err error
@@ -15,4 +18,8 @@ func InitDatabase() {
 	if err != nil {
 		panic(err)
 	}
+
+	client = redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_ADDRESS"),
+	})
 }

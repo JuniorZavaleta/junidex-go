@@ -5,8 +5,15 @@ import (
 	"../entities/base"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 )
+
+func GetPokemonTypeName(TypeId int) (string) {
+	Type, _ := client.Get(fmt.Sprintf("PT%d", TypeId)).Result()
+
+	return Type
+}
 
 func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 	var Pokemon entities.Pokemon
@@ -15,8 +22,6 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 	var PokemonName string
 	var PokemonTypeOneId int
 	var PokemonTypeTwoId sql.NullInt64
-	var PokemonTypeOne string
-	var PokemonTypeTwo sql.NullString
 	var PokemonHasPreEvol bool
 
 	err := rows.Scan(
@@ -25,8 +30,6 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 		&PokemonTypeOneId,
 		&PokemonTypeTwoId,
 		&PokemonHasPreEvol,
-		&PokemonTypeOne,
-		&PokemonTypeTwo,
 	)
 
 	if err == nil {
@@ -35,14 +38,14 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 		Pokemon.TypeOneId = PokemonTypeOneId
 		Pokemon.TypeOne = &entities.PokemonType{}
 		Pokemon.TypeOne.Id = int(Pokemon.TypeOneId)
-		Pokemon.TypeOne.Name = PokemonTypeOne
 		Pokemon.HasPreEvol = PokemonHasPreEvol
+		Pokemon.TypeOne.Name = GetPokemonTypeName(PokemonTypeOneId)
 
 		if PokemonTypeTwoId.Valid {
 			Pokemon.TypeTwo = &entities.PokemonType{}
 			Pokemon.TypeTwoId = base.IntNull{Value: int(PokemonTypeTwoId.Int64), Null: false}
 			Pokemon.TypeTwo.Id = Pokemon.TypeTwoId.Value
-			Pokemon.TypeTwo.Name = PokemonTypeTwo.String
+			Pokemon.TypeTwo.Name = GetPokemonTypeName(int(PokemonTypeTwoId.Int64))
 		} else {
 			Pokemon.TypeTwoId = base.IntNull{Value: 0, Null: true}
 		}
@@ -54,7 +57,7 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 }
 
 func AllPokemon() []entities.Pokemon {
-	rows, _ := db.Query("CALL junidex.get_all_Pokemon()")
+	rows, _ := db.Query("CALL junidex.get_all_pokemon()")
 
 	var AllPokemon []entities.Pokemon
 
@@ -67,7 +70,7 @@ func AllPokemon() []entities.Pokemon {
 }
 
 func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
-	rows, _ := db.Query("CALL junidex.filter_Pokemon(?, ?)",
+	rows, _ := db.Query("CALL junidex.filter_pokemon(?, ?)",
 		TypeOne,
 		TypeTwo,
 	)
