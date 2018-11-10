@@ -65,8 +65,8 @@ CREATE PROCEDURE get_complete_chain_evolution(PokemonId tinyint unsigned)
 
     SELECT
            chain_evolution.id,
-           c.name as current_pokemon,
-           e.name as evolution_pokemon,
+           c.id as current_id,
+           e.id as evolution_id,
            t.name as ev_type_name,
            chain_evolution.details
     FROM chain_evolution

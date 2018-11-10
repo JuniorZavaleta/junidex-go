@@ -2,9 +2,9 @@ package repo
 
 import (
 	"../entities"
+	"../entities/base"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -33,14 +33,18 @@ func CreatePokemonFromRow(rows *sql.Rows) (*entities.Pokemon, error) {
 		Pokemon.Id = PokemonId
 		Pokemon.Name = PokemonName
 		Pokemon.TypeOneId = PokemonTypeOneId
+		Pokemon.TypeOne = &entities.PokemonType{}
 		Pokemon.TypeOne.Id = int(Pokemon.TypeOneId)
 		Pokemon.TypeOne.Name = PokemonTypeOne
 		Pokemon.HasPreEvol = PokemonHasPreEvol
 
 		if PokemonTypeTwoId.Valid {
-			Pokemon.TypeTwoId = entities.IntNull{int(PokemonTypeTwoId.Int64), false}
+			Pokemon.TypeTwo = &entities.PokemonType{}
+			Pokemon.TypeTwoId = base.IntNull{Value: int(PokemonTypeTwoId.Int64), Null: false}
 			Pokemon.TypeTwo.Id = Pokemon.TypeTwoId.Value
 			Pokemon.TypeTwo.Name = PokemonTypeTwo.String
+		} else {
+			Pokemon.TypeTwoId = base.IntNull{Value: 0, Null: true}
 		}
 	} else {
 		panic(err)
@@ -81,7 +85,6 @@ func FilterPokemon(TypeOne string, TypeTwo string) ([]entities.Pokemon, error) {
 
 func CreatePokemon(pokemon entities.Pokemon) (entities.Pokemon, error) {
 	pokemonJson, err := json.Marshal(pokemon)
-	fmt.Println(string(pokemonJson))
 
 	if err != nil {
 		panic(err)

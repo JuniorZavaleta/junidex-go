@@ -2,6 +2,7 @@ package routers
 
 import (
 	"../entities"
+	"../entities/base"
 	"../repo"
 	"encoding/json"
 	"github.com/labstack/echo"
@@ -31,13 +32,13 @@ func CreatePokemon(c echo.Context) error {
 	}
 
 	TypeOne, _ := strconv.Atoi(json_map["type_one_id"].(string))
-	var TypeTwo entities.IntNull
+	var TypeTwo base.IntNull
 
 	if json_map["type_two_id"] != nil {
 		aux, _ := strconv.Atoi(json_map["type_two_id"].(string))
-		TypeTwo = entities.IntNull{Value: aux, Null: false}
+		TypeTwo = base.IntNull{Value: aux, Null: false}
 	} else {
-		TypeTwo = entities.IntNull{Value:0, Null: true}
+		TypeTwo = base.IntNull{Value:0, Null: true}
 	}
 
 	pokemon := entities.Pokemon {
